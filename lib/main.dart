@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,8 +9,8 @@ void main() {
 typedef ActionCallBack = void Function(Key key);
 typedef KeyCallBack = void Function(Key key);
 
-const Color primaryColor = Color(0xff50E3C2);
-const Color keypadColor = Color(0xff4A4A4A);
+const Color primaryColor = Color(0xFF76736A);
+const Color keypadColor = Color.fromARGB(255, 223, 44, 44);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -364,9 +362,9 @@ class _MyAppState extends State<MyApp> {
 }
 
 class OperatorButton extends StatelessWidget {
-  final Color defaultBackground = Colors.transparent;
-  final Color defaultForeground = primaryColor;
-  final Color changedBackground = primaryColor;
+  final Color defaultBackground = const Color.fromARGB(0, 77, 173, 66);
+  final Color defaultForeground = const Color.fromRGBO(58, 243, 44, 1);
+  final Color changedBackground = const Color.fromRGBO(160, 230, 228, 1);
   final Color changedForeground = Colors.white;
 
   final String actionName;
