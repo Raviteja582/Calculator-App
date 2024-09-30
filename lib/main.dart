@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -87,6 +89,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   void onOperandPressed(Key key) {
+    if (savedpreviousInput == false && previousInput != null) {
+      currentInput.clear();
+      savedpreviousInput = true;
+    }
+    if (isFinalValue) {
+      if (!identical(dotOperand, key)) {
+        currentInput.clear();
+      }
+      isFinalValue = false;
+    }
     setState(() {
       if (identical(sevenOperand, key)) {
         currentInput.add('7');
@@ -142,10 +154,57 @@ class _MyAppState extends State<MyApp> {
         if (currentInput.isEmpty || previousInput == null) {
           return;
         }
+        computeValue();
         savedpreviousInput = false;
         previousInput = null;
       }
     });
+  }
+
+  String fixDecimalPrecision(double doubleValue) {
+    int value;
+    if (doubleValue % 1 == 0) {
+      value = doubleValue.toInt();
+    } else {
+      return doubleValue.toStringAsFixed(4);
+    }
+    return value.toString();
+  }
+
+  List convertStringToList(String input) {
+    List output = [];
+    for (int i = 0; i < input.length; i++) {
+      output.add(String.fromCharCode(input.codeUnitAt(i)));
+    }
+    return output;
+  }
+
+  void showFinalValue(val) {
+    currentInput.clear();
+    currentInput = convertStringToList(val);
+    currentOperator = null;
+    setState(() {
+      textAreaController.text = val;
+      isFinalValue = true;
+    });
+  }
+
+  void computeValue() {
+    String value;
+    Function operation = (double a, double b) => {};
+    if (identical(currentOperator, plusOperator)) {
+      operation = Math.addition;
+    } else if (identical(currentOperator, minusOperator)) {
+      operation = Math.subtraction;
+    } else if (identical(currentOperator, multiplicationOperator)) {
+      operation = Math.multiplication;
+    } else if (identical(currentOperator, divisionOperator)) {
+      operation = Math.division;
+    }
+
+    double doubleValue = double.parse(convertIntArrayToString(currentInput));
+    value = fixDecimalPrecision(operation(previousInput, doubleValue));
+    showFinalValue(value);
   }
 
   @override
@@ -250,7 +309,7 @@ class _MyAppState extends State<MyApp> {
                         bindOperandsEvent('ac', clearAllKey),
                         OperandListener(
                           kkey: equalToKey,
-                          onKeyTap: (key) {},
+                          onKeyTap: onOperandPressed,
                           child: const Text(
                             '=',
                             style: TextStyle(
@@ -281,7 +340,7 @@ class _MyAppState extends State<MyApp> {
       key: key,
       actionName: name,
       onTapped: onOperatorPressed,
-      enabled: false,
+      enabled: identical(currentOperator, key) ? true : false,
       padding:
           height > 600 ? const EdgeInsets.all(10.0) : const EdgeInsets.all(0.0),
     );
@@ -384,5 +443,23 @@ class OperandListener extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class Math {
+  static double addition(double val1, double val2) {
+    return val1 + val2;
+  }
+
+  static double subtraction(double val1, double val2) {
+    return val1 - val2;
+  }
+
+  static double multiplication(double val1, double val2) {
+    return val1 * val2;
+  }
+
+  static double division(double val1, double val2) {
+    return val1 / val2;
   }
 }
