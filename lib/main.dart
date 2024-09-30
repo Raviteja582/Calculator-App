@@ -22,7 +22,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // handler to control the text box
-  late TextEditingController _textEditingController;
+  late TextEditingController textAreaController;
 
   // controllers for raising event for arthimatic operators
   final Key plusOperator = const Key('+');
@@ -48,13 +48,104 @@ class _MyAppState extends State<MyApp> {
   final Key clearAllKey = const Key('clearAllKey');
   final Key equalToKey = const Key('equalTo');
 
+  // values to hold
+  List currentInput = [];
+  late double? previousInput = null;
+  late Key? currentOperator = null;
+  bool savedpreviousInput = false;
+  bool isFinalValue = false;
+
   var height;
   var width;
 
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController();
+    textAreaController = TextEditingController();
+  }
+
+  void onOperatorPressed(Key actionKey) {
+    setState(() {
+      if (currentInput.isEmpty) return;
+
+      currentOperator = actionKey;
+
+      if (currentInput.isNotEmpty) {
+        previousInput = double.parse(convertIntArrayToString(currentInput));
+      }
+    });
+  }
+
+  String convertIntArrayToString(List iterator) {
+    String val = '';
+    // ignore: avoid_function_literals_in_foreach_calls
+    iterator.forEach((ele) {
+      val += ele;
+    });
+
+    return val;
+  }
+
+  void onOperandPressed(Key key) {
+    setState(() {
+      if (identical(sevenOperand, key)) {
+        currentInput.add('7');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(eightOperand, key)) {
+        currentInput.add('8');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(nineOperand, key)) {
+        currentInput.add('9');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(fourOperand, key)) {
+        currentInput.add('4');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(fiveOperand, key)) {
+        currentInput.add('5');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(sixOperand, key)) {
+        currentInput.add('6');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(oneOperand, key)) {
+        currentInput.add('1');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(twoOperand, key)) {
+        currentInput.add('2');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(threeOperand, key)) {
+        currentInput.add('3');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(dotOperand, key)) {
+        if (!currentInput.contains('.')) {
+          if (currentInput.isEmpty) {
+            currentInput.add('0');
+          }
+          currentInput.add('.');
+        }
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(zeroOperand, key)) {
+        currentInput.add('0');
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(backspaceKey, key)) {
+        // print('Values :: $currentInput');
+        if (currentInput.isNotEmpty) {
+          currentInput.removeLast();
+        }
+        textAreaController.text = convertIntArrayToString(currentInput);
+      } else if (identical(clearAllKey, key)) {
+        currentInput.clear();
+        previousInput = null;
+        savedpreviousInput = false;
+        textAreaController.clear();
+        currentOperator = null;
+      } else if (identical(equalToKey, key)) {
+        if (currentInput.isEmpty || previousInput == null) {
+          return;
+        }
+        savedpreviousInput = false;
+        previousInput = null;
+      }
+    });
   }
 
   @override
@@ -75,7 +166,7 @@ class _MyAppState extends State<MyApp> {
               child: TextField(
                 enabled: true,
                 autofocus: true,
-                controller: _textEditingController,
+                controller: textAreaController,
                 textAlign: TextAlign.right,
                 style: const TextStyle(
                   fontFamily: 'Avenir',
@@ -142,7 +233,7 @@ class _MyAppState extends State<MyApp> {
                         bindOperandsEvent('0', zeroOperand),
                         OperandListener(
                           kkey: backspaceKey,
-                          onKeyTap: (key) {},
+                          onKeyTap: onOperandPressed,
                           child: const Icon(
                             Icons.backspace,
                             size: 40,
@@ -189,7 +280,7 @@ class _MyAppState extends State<MyApp> {
     return OperatorButton(
       key: key,
       actionName: name,
-      onTapped: (key) => {},
+      onTapped: onOperatorPressed,
       enabled: false,
       padding:
           height > 600 ? const EdgeInsets.all(10.0) : const EdgeInsets.all(0.0),
@@ -199,7 +290,7 @@ class _MyAppState extends State<MyApp> {
   OperandListener bindOperandsEvent(String val, Key key) {
     return OperandListener(
       kkey: key,
-      onKeyTap: (key) {},
+      onKeyTap: onOperandPressed,
       child: Text(
         val,
         style: const TextStyle(
