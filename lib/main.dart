@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MaterialApp(
+    home: MyApp(),
+  ));
 }
 
 typedef ActionCallBack = void Function(Key key);
@@ -23,10 +25,28 @@ class _MyAppState extends State<MyApp> {
   late TextEditingController _textEditingController;
 
   // controllers for raising event for arthimatic operators
-  final Key plusOperator = const Key('plus');
-  final Key minusOperator = const Key('minus');
-  final Key multiplicationOperator = const Key('multiply');
-  final Key divisionOperator = const Key('divide');
+  final Key plusOperator = const Key('+');
+  final Key minusOperator = const Key('-');
+  final Key multiplicationOperator = const Key('*');
+  final Key divisionOperator = const Key('/');
+
+  // controllers for raising event for operands
+  final Key dotOperand = const Key('.');
+  final Key zeroOperand = const Key('0');
+  final Key oneOperand = const Key('1');
+  final Key twoOperand = const Key('2');
+  final Key threeOperand = const Key('3');
+  final Key fourOperand = const Key('4');
+  final Key fiveOperand = const Key('5');
+  final Key sixOperand = const Key('6');
+  final Key sevenOperand = const Key('7');
+  final Key eightOperand = const Key('8');
+  final Key nineOperand = const Key('9');
+
+  // controllers for raising event for controls
+  final Key backspaceKey = const Key('backspace');
+  final Key clearAllKey = const Key('clearAllKey');
+  final Key equalToKey = const Key('equalTo');
 
   var height;
   var width;
@@ -77,6 +97,89 @@ class _MyAppState extends State<MyApp> {
               bindOperatorEvent('/', divisionOperator)
             ],
           ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(30.0),
+              color: Colors.white,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        bindOperandsEvent('7', sevenOperand),
+                        bindOperandsEvent('8', eightOperand),
+                        bindOperandsEvent('9', nineOperand),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        bindOperandsEvent('4', fourOperand),
+                        bindOperandsEvent('5', fiveOperand),
+                        bindOperandsEvent('6', sixOperand),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        bindOperandsEvent('1', oneOperand),
+                        bindOperandsEvent('2', twoOperand),
+                        bindOperandsEvent('3', threeOperand),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        bindOperandsEvent('.', dotOperand),
+                        bindOperandsEvent('0', zeroOperand),
+                        OperandListener(
+                          kkey: backspaceKey,
+                          onKeyTap: (key) {},
+                          child: const Icon(
+                            Icons.backspace,
+                            size: 40,
+                            color: keypadColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        bindOperandsEvent('ac', clearAllKey),
+                        OperandListener(
+                          kkey: equalToKey,
+                          onKeyTap: (key) {},
+                          child: const Text(
+                            '=',
+                            style: TextStyle(
+                                color: primaryColor,
+                                fontSize: 80.0,
+                                shadows: [
+                                  BoxShadow(
+                                      blurRadius: 20.0,
+                                      color: primaryColor,
+                                      spreadRadius: 30.0)
+                                ]),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -90,6 +193,22 @@ class _MyAppState extends State<MyApp> {
       enabled: false,
       padding:
           height > 600 ? const EdgeInsets.all(10.0) : const EdgeInsets.all(0.0),
+    );
+  }
+
+  OperandListener bindOperandsEvent(String val, Key key) {
+    return OperandListener(
+      kkey: key,
+      onKeyTap: (key) {},
+      child: Text(
+        val,
+        style: const TextStyle(
+          color: keypadColor,
+          fontFamily: 'Avenir',
+          fontStyle: FontStyle.normal,
+          fontSize: 50.0,
+        ),
+      ),
     );
   }
 }
@@ -138,6 +257,38 @@ class OperatorButton extends StatelessWidget {
                   fontFamily: 'Avenir',
                   fontWeight: FontWeight.bold),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class OperandListener extends StatelessWidget {
+  final Widget child;
+  final Key kkey;
+  final KeyCallBack onKeyTap;
+
+  const OperandListener(
+      {super.key,
+      required this.child,
+      required this.kkey,
+      required this.onKeyTap});
+
+  @override
+  Widget build(BuildContext context) {
+    assert(debugCheckHasMaterial(context));
+    return Expanded(
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkResponse(
+          splashColor: primaryColor,
+          highlightColor: Colors.white,
+          onTap: () => onKeyTap(kkey),
+          child: Container(
+            //color: Colors.white,
+            alignment: Alignment.center,
+            child: child,
           ),
         ),
       ),
